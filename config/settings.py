@@ -22,9 +22,16 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "django_filters",
     # local
     "apps.accounts",
     "apps.campaigns",
+    "apps.agents",
+    "apps.leads",
+    "apps.calls",
+    "apps.webhooks",
+    "apps.integrations",
+    "apps.exports",
 ]
 
 MIDDLEWARE = [
@@ -91,8 +98,24 @@ REST_FRAMEWORK = {
 
 # ── drf-spectacular ────────────────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Valueloads AI API",
-    "DESCRIPTION": "Authentication and employee management API",
+    "TITLE": "Valueloads AI Backend API",
+    "DESCRIPTION": """
+    Complete voice AI agent platform API similar to ConversAI Labs.
+
+    ## Features
+    - **Agents**: Manage AI voice agents with custom prompts and behaviors
+    - **Leads**: Contact management with scheduling and custom fields
+    - **Calls**: Call tracking with AI analysis and recordings
+    - **Campaigns**: Group agents and track performance metrics
+    - **Webhooks**: Real-time event notifications
+    - **Integrations**: Connect to CRMs (Salesforce, HubSpot, etc.)
+    - **Analytics**: Pre-aggregated campaign statistics
+    - **Exports**: Bulk data export to CSV/Excel
+
+    ## Authentication
+    All endpoints require JWT Bearer token authentication (except docs).
+    Use `/api/auth/token/` to obtain access tokens.
+    """,
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SECURITY": [{"BearerAuth": []}],
@@ -105,6 +128,16 @@ SPECTACULAR_SETTINGS = {
             }
         }
     },
+    "TAGS": [
+        {"name": "Authentication", "description": "User authentication and token management"},
+        {"name": "Agents", "description": "AI voice agent configuration and management"},
+        {"name": "Leads", "description": "Contact management and scheduling"},
+        {"name": "Calls", "description": "Call records, AI analysis, and recordings"},
+        {"name": "Campaigns", "description": "Campaign management and statistics"},
+        {"name": "Webhooks", "description": "Webhook configuration and delivery logs"},
+        {"name": "Integrations", "description": "Third-party CRM integrations"},
+        {"name": "Exports", "description": "Data export jobs"},
+    ],
 }
 
 # ── Simple JWT ─────────────────────────────────────────────────────────────────

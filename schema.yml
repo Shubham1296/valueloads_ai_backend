@@ -1,0 +1,5289 @@
+openapi: 3.0.3
+info:
+  title: Valueloads AI Backend API
+  version: 1.0.0
+  description: "\n    Complete voice AI agent platform API similar to ConversAI Labs.\n\
+    \n    ## Features\n    - **Agents**: Manage AI voice agents with custom prompts\
+    \ and behaviors\n    - **Leads**: Contact management with scheduling and custom\
+    \ fields\n    - **Calls**: Call tracking with AI analysis and recordings\n   \
+    \ - **Campaigns**: Group agents and track performance metrics\n    - **Webhooks**:\
+    \ Real-time event notifications\n    - **Integrations**: Connect to CRMs (Salesforce,\
+    \ HubSpot, etc.)\n    - **Analytics**: Pre-aggregated campaign statistics\n  \
+    \  - **Exports**: Bulk data export to CSV/Excel\n\n    ## Authentication\n   \
+    \ All endpoints require JWT Bearer token authentication (except docs).\n    Use\
+    \ `/api/auth/token/` to obtain access tokens.\n    "
+paths:
+  /api/agent-versions/:
+    get:
+      operationId: agent_versions_list
+      description: |-
+        API endpoint for viewing agent versions.
+        Read-only access to version history.
+      parameters:
+      - in: query
+        name: agent
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - agent-versions
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentVersion'
+          description: ''
+  /api/agent-versions/{id}/:
+    get:
+      operationId: agent_versions_retrieve
+      description: |-
+        API endpoint for viewing agent versions.
+        Read-only access to version history.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this agent version.
+        required: true
+      tags:
+      - agent-versions
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentVersion'
+          description: ''
+  /api/agents/:
+    get:
+      operationId: agents_list
+      description: |-
+        API endpoint for managing AI voice agents.
+
+        list: Get list of agents
+        retrieve: Get specific agent details
+        create: Create new agent
+        update: Update agent
+        partial_update: Partially update agent
+        destroy: Delete agent (soft delete)
+      parameters:
+      - in: query
+        name: campaign
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: company
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - active
+          - inactive
+          - testing
+        description: |-
+          * `active` - Active
+          * `inactive` - Inactive
+          * `testing` - Testing
+      tags:
+      - agents
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentList'
+          description: ''
+    post:
+      operationId: agents_create
+      description: |-
+        API endpoint for managing AI voice agents.
+
+        list: Get list of agents
+        retrieve: Get specific agent details
+        create: Create new agent
+        update: Update agent
+        partial_update: Partially update agent
+        destroy: Delete agent (soft delete)
+      tags:
+      - agents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Agent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Agent'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+          description: ''
+  /api/agents/{id}/:
+    get:
+      operationId: agents_retrieve
+      description: |-
+        API endpoint for managing AI voice agents.
+
+        list: Get list of agents
+        retrieve: Get specific agent details
+        create: Create new agent
+        update: Update agent
+        partial_update: Partially update agent
+        destroy: Delete agent (soft delete)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this agent.
+        required: true
+      tags:
+      - agents
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+          description: ''
+    put:
+      operationId: agents_update
+      description: |-
+        API endpoint for managing AI voice agents.
+
+        list: Get list of agents
+        retrieve: Get specific agent details
+        create: Create new agent
+        update: Update agent
+        partial_update: Partially update agent
+        destroy: Delete agent (soft delete)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this agent.
+        required: true
+      tags:
+      - agents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Agent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Agent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Agent'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+          description: ''
+    patch:
+      operationId: agents_partial_update
+      description: |-
+        API endpoint for managing AI voice agents.
+
+        list: Get list of agents
+        retrieve: Get specific agent details
+        create: Create new agent
+        update: Update agent
+        partial_update: Partially update agent
+        destroy: Delete agent (soft delete)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this agent.
+        required: true
+      tags:
+      - agents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAgent'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAgent'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAgent'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+          description: ''
+    delete:
+      operationId: agents_destroy
+      description: |-
+        API endpoint for managing AI voice agents.
+
+        list: Get list of agents
+        retrieve: Get specific agent details
+        create: Create new agent
+        update: Update agent
+        partial_update: Partially update agent
+        destroy: Delete agent (soft delete)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this agent.
+        required: true
+      tags:
+      - agents
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/agents/{id}/performance/:
+    get:
+      operationId: agents_performance_retrieve
+      description: Get agent performance metrics
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this agent.
+        required: true
+      tags:
+      - agents
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+          description: ''
+  /api/agents/{id}/versions/:
+    get:
+      operationId: agents_versions_retrieve
+      description: Get all versions of this agent
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this agent.
+        required: true
+      tags:
+      - agents
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+          description: ''
+  /api/ai-analysis/:
+    get:
+      operationId: ai_analysis_list
+      description: |-
+        API endpoint for viewing AI call analysis.
+        Read-only access.
+      parameters:
+      - in: query
+        name: call
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: sentiment
+        schema:
+          type: string
+          enum:
+          - negative
+          - neutral
+          - positive
+        description: |-
+          * `positive` - Positive
+          * `neutral` - Neutral
+          * `negative` - Negative
+      tags:
+      - ai-analysis
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AIAnalysis'
+          description: ''
+  /api/ai-analysis/{id}/:
+    get:
+      operationId: ai_analysis_retrieve
+      description: |-
+        API endpoint for viewing AI call analysis.
+        Read-only access.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this ai analysis.
+        required: true
+      tags:
+      - ai-analysis
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAnalysis'
+          description: ''
+  /api/auth/company/register/:
+    post:
+      operationId: auth_company_register_create
+      description: Creates a new company and its first admin employee. Returns JWT
+        tokens.
+      summary: Register company + admin
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CompanyRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CompanyRegister'
+        required: true
+      responses:
+        '201':
+          description: Company and tokens returned
+  /api/auth/employee/register/:
+    post:
+      operationId: auth_employee_register_create
+      description: Creates a new employee under an existing company identified by
+        its slug.
+      summary: Register employee
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeRegister'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmployeeRegister'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmployeeRegister'
+        required: true
+      responses:
+        '201':
+          description: Employee and tokens returned
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Authenticate with email and password. Returns access and refresh
+        JWT tokens.
+      summary: Login
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Login'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Login'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Login'
+        required: true
+      responses:
+        '200':
+          description: Employee profile and tokens returned
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      description: Returns the profile of the currently authenticated employee.
+      summary: Get current user
+      tags:
+      - Profile
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+          description: ''
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      security:
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/call-costs/:
+    get:
+      operationId: call_costs_list
+      description: |-
+        API endpoint for viewing call costs.
+        Read-only access for billing data.
+      parameters:
+      - in: query
+        name: ai_provider
+        schema:
+          type: string
+      - in: query
+        name: call
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: voice_provider
+        schema:
+          type: string
+      tags:
+      - call-costs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CallCost'
+          description: ''
+  /api/call-costs/{id}/:
+    get:
+      operationId: call_costs_retrieve
+      description: |-
+        API endpoint for viewing call costs.
+        Read-only access for billing data.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this call cost.
+        required: true
+      tags:
+      - call-costs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallCost'
+          description: ''
+  /api/call-costs/total_costs/:
+    get:
+      operationId: call_costs_total_costs_retrieve
+      description: Get total costs aggregated
+      tags:
+      - call-costs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallCost'
+          description: ''
+  /api/call-recordings/:
+    get:
+      operationId: call_recordings_list
+      description: |-
+        API endpoint for viewing call recordings.
+        Read-only access to recording metadata.
+      parameters:
+      - in: query
+        name: call
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: format
+        schema:
+          type: string
+      - in: query
+        name: is_deleted
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - call-recordings
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CallRecording'
+          description: ''
+  /api/call-recordings/{id}/:
+    get:
+      operationId: call_recordings_retrieve
+      description: |-
+        API endpoint for viewing call recordings.
+        Read-only access to recording metadata.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this call recording.
+        required: true
+      tags:
+      - call-recordings
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CallRecording'
+          description: ''
+  /api/calls/:
+    get:
+      operationId: calls_list
+      description: |-
+        API endpoint for managing calls.
+
+        list: Get list of calls
+        retrieve: Get specific call details with AI analysis
+        create: Create new call record
+        update: Update call
+      parameters:
+      - in: query
+        name: agent
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: company
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: lead
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: outcome
+        schema:
+          type: string
+          nullable: true
+          enum:
+          - answered
+          - busy
+          - failed
+          - no_answer
+          - voicemail
+        description: |-
+          * `answered` - Answered
+          * `no_answer` - No Answer
+          * `busy` - Busy
+          * `failed` - Failed
+          * `voicemail` - Voicemail
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - completed
+          - failed
+          - in_progress
+          - scheduled
+        description: |-
+          * `scheduled` - Scheduled
+          * `in_progress` - In Progress
+          * `completed` - Completed
+          * `failed` - Failed
+      tags:
+      - calls
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CallList'
+          description: ''
+    post:
+      operationId: calls_create
+      description: |-
+        API endpoint for managing calls.
+
+        list: Get list of calls
+        retrieve: Get specific call details with AI analysis
+        create: Create new call record
+        update: Update call
+      tags:
+      - calls
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Call'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Call'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Call'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+          description: ''
+  /api/calls/{id}/:
+    get:
+      operationId: calls_retrieve
+      description: |-
+        API endpoint for managing calls.
+
+        list: Get list of calls
+        retrieve: Get specific call details with AI analysis
+        create: Create new call record
+        update: Update call
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this call.
+        required: true
+      tags:
+      - calls
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+          description: ''
+    put:
+      operationId: calls_update
+      description: |-
+        API endpoint for managing calls.
+
+        list: Get list of calls
+        retrieve: Get specific call details with AI analysis
+        create: Create new call record
+        update: Update call
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this call.
+        required: true
+      tags:
+      - calls
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Call'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Call'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Call'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+          description: ''
+    patch:
+      operationId: calls_partial_update
+      description: |-
+        API endpoint for managing calls.
+
+        list: Get list of calls
+        retrieve: Get specific call details with AI analysis
+        create: Create new call record
+        update: Update call
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this call.
+        required: true
+      tags:
+      - calls
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCall'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCall'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCall'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+          description: ''
+    delete:
+      operationId: calls_destroy
+      description: |-
+        API endpoint for managing calls.
+
+        list: Get list of calls
+        retrieve: Get specific call details with AI analysis
+        create: Create new call record
+        update: Update call
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this call.
+        required: true
+      tags:
+      - calls
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/calls/metrics/:
+    get:
+      operationId: calls_metrics_retrieve
+      description: Get aggregate call metrics
+      tags:
+      - calls
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Call'
+          description: ''
+  /api/campaigns/:
+    get:
+      operationId: campaigns_list
+      description: Returns all campaigns.
+      summary: List campaigns
+      tags:
+      - Campaigns
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Campaign'
+          description: ''
+    post:
+      operationId: campaigns_create
+      description: Creates a new campaign. The authenticated employee is recorded
+        as the creator.
+      summary: Create campaign
+      tags:
+      - Campaigns
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+          description: ''
+        '400':
+          description: Validation error
+  /api/campaigns/{uuid}/:
+    get:
+      operationId: campaigns_retrieve
+      description: Returns a single campaign by UUID.
+      summary: Retrieve campaign
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Campaigns
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+          description: ''
+        '404':
+          description: Not found
+    put:
+      operationId: campaigns_update
+      description: Fully updates a campaign. The authenticated employee is recorded
+        as the last updater.
+      summary: Update campaign
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Campaigns
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Campaign'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+          description: ''
+        '400':
+          description: Validation error
+        '404':
+          description: Not found
+    patch:
+      operationId: campaigns_partial_update
+      description: Partially updates a campaign. The authenticated employee is recorded
+        as the last updater.
+      summary: Partial update campaign
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Campaigns
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCampaign'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCampaign'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCampaign'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Campaign'
+          description: ''
+        '400':
+          description: Validation error
+        '404':
+          description: Not found
+    delete:
+      operationId: campaigns_destroy
+      description: Deletes a campaign by UUID.
+      summary: Delete campaign
+      parameters:
+      - in: path
+        name: uuid
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Campaigns
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Not found
+  /api/data-exports/:
+    get:
+      operationId: data_exports_list
+      description: |-
+        API endpoint for managing data exports.
+
+        list: Get list of exports
+        retrieve: Get specific export details
+        create: Create new export job
+      parameters:
+      - in: query
+        name: company
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: export_type
+        schema:
+          type: string
+          enum:
+          - analytics_excel
+          - calls_csv
+          - full_backup
+          - leads_csv
+          - transcripts_zip
+        description: |-
+          * `leads_csv` - Leads CSV
+          * `calls_csv` - Calls CSV
+          * `transcripts_zip` - Transcripts ZIP
+          * `analytics_excel` - Analytics Excel
+          * `full_backup` - Full Data Backup
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: requested_by
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - completed
+          - failed
+          - pending
+          - processing
+        description: |-
+          * `pending` - Pending
+          * `processing` - Processing
+          * `completed` - Completed
+          * `failed` - Failed
+      tags:
+      - data-exports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataExport'
+          description: ''
+    post:
+      operationId: data_exports_create
+      description: |-
+        API endpoint for managing data exports.
+
+        list: Get list of exports
+        retrieve: Get specific export details
+        create: Create new export job
+      tags:
+      - data-exports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataExport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DataExport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DataExport'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataExport'
+          description: ''
+  /api/data-exports/{id}/:
+    get:
+      operationId: data_exports_retrieve
+      description: |-
+        API endpoint for managing data exports.
+
+        list: Get list of exports
+        retrieve: Get specific export details
+        create: Create new export job
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this data export.
+        required: true
+      tags:
+      - data-exports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataExport'
+          description: ''
+    put:
+      operationId: data_exports_update
+      description: |-
+        API endpoint for managing data exports.
+
+        list: Get list of exports
+        retrieve: Get specific export details
+        create: Create new export job
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this data export.
+        required: true
+      tags:
+      - data-exports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataExport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DataExport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DataExport'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataExport'
+          description: ''
+    patch:
+      operationId: data_exports_partial_update
+      description: |-
+        API endpoint for managing data exports.
+
+        list: Get list of exports
+        retrieve: Get specific export details
+        create: Create new export job
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this data export.
+        required: true
+      tags:
+      - data-exports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDataExport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDataExport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDataExport'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataExport'
+          description: ''
+    delete:
+      operationId: data_exports_destroy
+      description: |-
+        API endpoint for managing data exports.
+
+        list: Get list of exports
+        retrieve: Get specific export details
+        create: Create new export job
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this data export.
+        required: true
+      tags:
+      - data-exports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/data-exports/{id}/download/:
+    get:
+      operationId: data_exports_download_retrieve
+      description: Get download URL for completed export
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this data export.
+        required: true
+      tags:
+      - data-exports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataExport'
+          description: ''
+  /api/integration-logs/:
+    get:
+      operationId: integration_logs_list
+      description: |-
+        API endpoint for viewing integration logs.
+        Read-only access.
+      parameters:
+      - in: query
+        name: action
+        schema:
+          type: string
+          enum:
+          - pull_contacts
+          - push_call_data
+          - sync_leads
+          - update_deal
+        description: |-
+          * `sync_leads` - Sync Leads
+          * `push_call_data` - Push Call Data
+          * `pull_contacts` - Pull Contacts
+          * `update_deal` - Update Deal
+      - in: query
+        name: integration
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: success
+        schema:
+          type: boolean
+      tags:
+      - integration-logs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IntegrationLog'
+          description: ''
+  /api/integration-logs/{id}/:
+    get:
+      operationId: integration_logs_retrieve
+      description: |-
+        API endpoint for viewing integration logs.
+        Read-only access.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this integration log.
+        required: true
+      tags:
+      - integration-logs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationLog'
+          description: ''
+  /api/integrations/:
+    get:
+      operationId: integrations_list
+      description: API endpoint for managing third-party integrations.
+      parameters:
+      - in: query
+        name: company
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: integration_type
+        schema:
+          type: string
+          enum:
+          - custom_webhook
+          - hubspot
+          - pipedrive
+          - salesforce
+          - slack
+          - zapier
+          - zoho
+        description: |-
+          * `salesforce` - Salesforce
+          * `hubspot` - HubSpot
+          * `pipedrive` - Pipedrive
+          * `zoho` - Zoho CRM
+          * `slack` - Slack
+          * `zapier` - Zapier
+          * `custom_webhook` - Custom Webhook
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - integrations
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Integration'
+          description: ''
+    post:
+      operationId: integrations_create
+      description: API endpoint for managing third-party integrations.
+      tags:
+      - integrations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Integration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Integration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Integration'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integration'
+          description: ''
+  /api/integrations/{id}/:
+    get:
+      operationId: integrations_retrieve
+      description: API endpoint for managing third-party integrations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this integration.
+        required: true
+      tags:
+      - integrations
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integration'
+          description: ''
+    put:
+      operationId: integrations_update
+      description: API endpoint for managing third-party integrations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this integration.
+        required: true
+      tags:
+      - integrations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Integration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Integration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Integration'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integration'
+          description: ''
+    patch:
+      operationId: integrations_partial_update
+      description: API endpoint for managing third-party integrations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this integration.
+        required: true
+      tags:
+      - integrations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedIntegration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedIntegration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedIntegration'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integration'
+          description: ''
+    delete:
+      operationId: integrations_destroy
+      description: API endpoint for managing third-party integrations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this integration.
+        required: true
+      tags:
+      - integrations
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/integrations/{id}/logs/:
+    get:
+      operationId: integrations_logs_retrieve
+      description: Get sync logs for this integration
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this integration.
+        required: true
+      tags:
+      - integrations
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integration'
+          description: ''
+  /api/integrations/{id}/sync/:
+    post:
+      operationId: integrations_sync_create
+      description: Trigger a sync with this integration
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this integration.
+        required: true
+      tags:
+      - integrations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Integration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Integration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Integration'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integration'
+          description: ''
+  /api/lead-import-batches/:
+    get:
+      operationId: lead_import_batches_list
+      description: API endpoint for managing lead import batches.
+      parameters:
+      - in: query
+        name: campaign
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: company
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - completed
+          - failed
+          - partial
+          - pending
+          - processing
+        description: |-
+          * `pending` - Pending
+          * `processing` - Processing
+          * `completed` - Completed
+          * `failed` - Failed
+          * `partial` - Partial Success
+      tags:
+      - lead-import-batches
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeadImportBatch'
+          description: ''
+    post:
+      operationId: lead_import_batches_create
+      description: API endpoint for managing lead import batches.
+      tags:
+      - lead-import-batches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadImportBatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeadImportBatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeadImportBatch'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadImportBatch'
+          description: ''
+  /api/lead-import-batches/{id}/:
+    get:
+      operationId: lead_import_batches_retrieve
+      description: API endpoint for managing lead import batches.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead import batch.
+        required: true
+      tags:
+      - lead-import-batches
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadImportBatch'
+          description: ''
+    put:
+      operationId: lead_import_batches_update
+      description: API endpoint for managing lead import batches.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead import batch.
+        required: true
+      tags:
+      - lead-import-batches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadImportBatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeadImportBatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeadImportBatch'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadImportBatch'
+          description: ''
+    patch:
+      operationId: lead_import_batches_partial_update
+      description: API endpoint for managing lead import batches.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead import batch.
+        required: true
+      tags:
+      - lead-import-batches
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadImportBatch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadImportBatch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadImportBatch'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadImportBatch'
+          description: ''
+    delete:
+      operationId: lead_import_batches_destroy
+      description: API endpoint for managing lead import batches.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead import batch.
+        required: true
+      tags:
+      - lead-import-batches
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/lead-notes/:
+    get:
+      operationId: lead_notes_list
+      description: API endpoint for managing lead notes.
+      parameters:
+      - in: query
+        name: is_pinned
+        schema:
+          type: boolean
+      - in: query
+        name: lead
+        schema:
+          type: string
+          format: uuid
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - lead-notes
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeadNote'
+          description: ''
+    post:
+      operationId: lead_notes_create
+      description: API endpoint for managing lead notes.
+      tags:
+      - lead-notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadNote'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeadNote'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeadNote'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadNote'
+          description: ''
+  /api/lead-notes/{id}/:
+    get:
+      operationId: lead_notes_retrieve
+      description: API endpoint for managing lead notes.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead note.
+        required: true
+      tags:
+      - lead-notes
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadNote'
+          description: ''
+    put:
+      operationId: lead_notes_update
+      description: API endpoint for managing lead notes.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead note.
+        required: true
+      tags:
+      - lead-notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LeadNote'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LeadNote'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LeadNote'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadNote'
+          description: ''
+    patch:
+      operationId: lead_notes_partial_update
+      description: API endpoint for managing lead notes.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead note.
+        required: true
+      tags:
+      - lead-notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadNote'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadNote'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLeadNote'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeadNote'
+          description: ''
+    delete:
+      operationId: lead_notes_destroy
+      description: API endpoint for managing lead notes.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead note.
+        required: true
+      tags:
+      - lead-notes
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/leads/:
+    get:
+      operationId: leads_list
+      description: |-
+        API endpoint for managing leads.
+
+        list: Get list of leads with filtering
+        retrieve: Get specific lead details
+        create: Create new lead
+        update: Update lead
+        partial_update: Partially update lead
+        destroy: Delete lead (soft delete)
+      parameters:
+      - in: query
+        name: agent
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: campaign
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: company
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: disposition
+        schema:
+          type: string
+          nullable: true
+          enum:
+          - callback_requested
+          - completed
+          - dnc
+          - hung_up
+          - no_answer
+          - not_interested
+          - voicemail
+          - wrong_number
+        description: |-
+          * `not_interested` - Not Interested
+          * `hung_up` - Hung Up
+          * `completed` - Completed
+          * `no_answer` - No Answer
+          * `callback_requested` - Callback Requested
+          * `voicemail` - Voicemail Left
+          * `wrong_number` - Wrong Number
+          * `dnc` - Do Not Call
+      - in: query
+        name: is_verified
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - done
+          - in_progress
+          - new
+          - scheduled
+          - stopped
+        description: |-
+          * `new` - New
+          * `scheduled` - Scheduled
+          * `in_progress` - In Progress
+          * `done` - Done
+          * `stopped` - Stopped
+      tags:
+      - leads
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LeadList'
+          description: ''
+    post:
+      operationId: leads_create
+      description: |-
+        API endpoint for managing leads.
+
+        list: Get list of leads with filtering
+        retrieve: Get specific lead details
+        create: Create new lead
+        update: Update lead
+        partial_update: Partially update lead
+        destroy: Delete lead (soft delete)
+      tags:
+      - leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lead'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Lead'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Lead'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+  /api/leads/{id}/:
+    get:
+      operationId: leads_retrieve
+      description: |-
+        API endpoint for managing leads.
+
+        list: Get list of leads with filtering
+        retrieve: Get specific lead details
+        create: Create new lead
+        update: Update lead
+        partial_update: Partially update lead
+        destroy: Delete lead (soft delete)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead.
+        required: true
+      tags:
+      - leads
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+    put:
+      operationId: leads_update
+      description: |-
+        API endpoint for managing leads.
+
+        list: Get list of leads with filtering
+        retrieve: Get specific lead details
+        create: Create new lead
+        update: Update lead
+        partial_update: Partially update lead
+        destroy: Delete lead (soft delete)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead.
+        required: true
+      tags:
+      - leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lead'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Lead'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Lead'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+    patch:
+      operationId: leads_partial_update
+      description: |-
+        API endpoint for managing leads.
+
+        list: Get list of leads with filtering
+        retrieve: Get specific lead details
+        create: Create new lead
+        update: Update lead
+        partial_update: Partially update lead
+        destroy: Delete lead (soft delete)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead.
+        required: true
+      tags:
+      - leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLead'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLead'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLead'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+    delete:
+      operationId: leads_destroy
+      description: |-
+        API endpoint for managing leads.
+
+        list: Get list of leads with filtering
+        retrieve: Get specific lead details
+        create: Create new lead
+        update: Update lead
+        partial_update: Partially update lead
+        destroy: Delete lead (soft delete)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead.
+        required: true
+      tags:
+      - leads
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/leads/{id}/add_note/:
+    post:
+      operationId: leads_add_note_create
+      description: Add a note to this lead
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead.
+        required: true
+      tags:
+      - leads
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Lead'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Lead'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Lead'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+  /api/leads/{id}/call_history/:
+    get:
+      operationId: leads_call_history_retrieve
+      description: Get call history for this lead
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this lead.
+        required: true
+      tags:
+      - leads
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Lead'
+          description: ''
+  /api/voice-configs/:
+    get:
+      operationId: voice_configs_list
+      description: API endpoint for managing voice configurations.
+      parameters:
+      - in: query
+        name: company
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - in: query
+        name: language_code
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: provider
+        schema:
+          type: string
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - voice-configs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VoiceConfiguration'
+          description: ''
+    post:
+      operationId: voice_configs_create
+      description: API endpoint for managing voice configurations.
+      tags:
+      - voice-configs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoiceConfiguration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VoiceConfiguration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VoiceConfiguration'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceConfiguration'
+          description: ''
+  /api/voice-configs/{id}/:
+    get:
+      operationId: voice_configs_retrieve
+      description: API endpoint for managing voice configurations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this voice configuration.
+        required: true
+      tags:
+      - voice-configs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceConfiguration'
+          description: ''
+    put:
+      operationId: voice_configs_update
+      description: API endpoint for managing voice configurations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this voice configuration.
+        required: true
+      tags:
+      - voice-configs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoiceConfiguration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VoiceConfiguration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VoiceConfiguration'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceConfiguration'
+          description: ''
+    patch:
+      operationId: voice_configs_partial_update
+      description: API endpoint for managing voice configurations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this voice configuration.
+        required: true
+      tags:
+      - voice-configs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVoiceConfiguration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVoiceConfiguration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVoiceConfiguration'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VoiceConfiguration'
+          description: ''
+    delete:
+      operationId: voice_configs_destroy
+      description: API endpoint for managing voice configurations.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this voice configuration.
+        required: true
+      tags:
+      - voice-configs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/webhook-configs/:
+    get:
+      operationId: webhook_configs_list
+      description: |-
+        API endpoint for managing webhook configurations.
+        One config per company.
+      parameters:
+      - in: query
+        name: company
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - webhook-configs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebhookConfig'
+          description: ''
+    post:
+      operationId: webhook_configs_create
+      description: |-
+        API endpoint for managing webhook configurations.
+        One config per company.
+      tags:
+      - webhook-configs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookConfig'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebhookConfig'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WebhookConfig'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfig'
+          description: ''
+  /api/webhook-configs/{id}/:
+    get:
+      operationId: webhook_configs_retrieve
+      description: |-
+        API endpoint for managing webhook configurations.
+        One config per company.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this webhook config.
+        required: true
+      tags:
+      - webhook-configs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfig'
+          description: ''
+    put:
+      operationId: webhook_configs_update
+      description: |-
+        API endpoint for managing webhook configurations.
+        One config per company.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this webhook config.
+        required: true
+      tags:
+      - webhook-configs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookConfig'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebhookConfig'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WebhookConfig'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfig'
+          description: ''
+    patch:
+      operationId: webhook_configs_partial_update
+      description: |-
+        API endpoint for managing webhook configurations.
+        One config per company.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this webhook config.
+        required: true
+      tags:
+      - webhook-configs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWebhookConfig'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWebhookConfig'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWebhookConfig'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfig'
+          description: ''
+    delete:
+      operationId: webhook_configs_destroy
+      description: |-
+        API endpoint for managing webhook configurations.
+        One config per company.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this webhook config.
+        required: true
+      tags:
+      - webhook-configs
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/webhook-configs/{id}/test/:
+    post:
+      operationId: webhook_configs_test_create
+      description: Send a test webhook event
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this webhook config.
+        required: true
+      tags:
+      - webhook-configs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookConfig'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebhookConfig'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WebhookConfig'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfig'
+          description: ''
+  /api/webhook-deliveries/:
+    get:
+      operationId: webhook_deliveries_list
+      description: |-
+        API endpoint for viewing webhook delivery logs.
+        Read-only access.
+      parameters:
+      - in: query
+        name: call
+        schema:
+          type: string
+          format: uuid
+      - in: query
+        name: event_type
+        schema:
+          type: string
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - failed
+          - pending
+          - retrying
+          - success
+        description: |-
+          * `pending` - Pending
+          * `success` - Success
+          * `failed` - Failed
+          * `retrying` - Retrying
+      - in: query
+        name: webhook_config
+        schema:
+          type: string
+          format: uuid
+      tags:
+      - webhook-deliveries
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WebhookDeliveryList'
+          description: ''
+  /api/webhook-deliveries/{id}/:
+    get:
+      operationId: webhook_deliveries_retrieve
+      description: |-
+        API endpoint for viewing webhook delivery logs.
+        Read-only access.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this webhook delivery.
+        required: true
+      tags:
+      - webhook-deliveries
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDelivery'
+          description: ''
+  /api/webhook-deliveries/{id}/retry/:
+    post:
+      operationId: webhook_deliveries_retry_create
+      description: Manually retry a failed webhook delivery
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this webhook delivery.
+        required: true
+      tags:
+      - webhook-deliveries
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookDelivery'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebhookDelivery'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WebhookDelivery'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDelivery'
+          description: ''
+components:
+  schemas:
+    AIAnalysis:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        sentiment:
+          oneOf:
+          - $ref: '#/components/schemas/SentimentEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        sentiment_score:
+          type: number
+          format: double
+          nullable: true
+          description: -1.0 to 1.0
+        key_points:
+          description: '["interested in product", "budget concerns"]'
+        topics_discussed: {}
+        objections_raised: {}
+        intent_detected:
+          type: string
+          description: purchase_intent, information_gathering
+          maxLength: 100
+        confidence_score:
+          type: number
+          format: double
+          nullable: true
+        next_actions:
+          description: '["send pricing", "schedule demo"]'
+        recommendations:
+          type: string
+        processed_at:
+          type: string
+          format: date-time
+          readOnly: true
+        call:
+          type: string
+          format: uuid
+      required:
+      - call
+      - id
+      - processed_at
+    ActionEnum:
+      enum:
+      - sync_leads
+      - push_call_data
+      - pull_contacts
+      - update_deal
+      type: string
+      description: |-
+        * `sync_leads` - Sync Leads
+        * `push_call_data` - Push Call Data
+        * `pull_contacts` - Pull Contacts
+        * `update_deal` - Update Deal
+    Agent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        voice_config_name:
+          type: string
+          readOnly: true
+        campaign_name:
+          type: string
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/StatusCbfEnum'
+        prompt:
+          type: string
+          description: System prompt / instructions for the AI
+        welcome_message:
+          type: string
+          description: First thing agent says
+        fallback_message:
+          type: string
+          description: When agent doesn't understand
+        goodbye_message:
+          type: string
+        voice_id:
+          type: string
+          format: uuid
+          nullable: true
+        max_attempts:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Max call attempts per lead
+        retry_delay_minutes:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        max_call_duration_minutes:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        interrupt_threshold:
+          type: number
+          format: double
+          description: How easily user can interrupt (0-1)
+        model_name:
+          type: string
+          maxLength: 100
+        temperature:
+          type: number
+          format: double
+        max_tokens:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        knowledge_base_text:
+          type: string
+          description: Additional context for agent
+        knowledge_base_urls:
+          description: '["https://..."]'
+        enable_human_handoff:
+          type: boolean
+        handoff_phone_number:
+          type: string
+          maxLength: 20
+        handoff_triggers:
+          description: '["angry", "request manager"]'
+        total_calls:
+          type: integer
+          readOnly: true
+        successful_calls:
+          type: integer
+          readOnly: true
+        avg_rating:
+          type: number
+          format: double
+          readOnly: true
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company:
+          type: string
+          format: uuid
+        campaign:
+          type: string
+          format: uuid
+        voice_config:
+          type: string
+          format: uuid
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        updated_by:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - avg_rating
+      - campaign
+      - campaign_name
+      - company
+      - company_name
+      - created_at
+      - id
+      - name
+      - prompt
+      - successful_calls
+      - total_calls
+      - updated_at
+      - voice_config_name
+      - welcome_message
+    AgentList:
+      type: object
+      description: Lightweight serializer for listing agents
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        status:
+          $ref: '#/components/schemas/StatusCbfEnum'
+        campaign:
+          type: string
+          format: uuid
+        campaign_name:
+          type: string
+          readOnly: true
+        voice_config_name:
+          type: string
+          readOnly: true
+        total_calls:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        successful_calls:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - campaign
+      - campaign_name
+      - created_at
+      - id
+      - name
+      - voice_config_name
+    AgentVersion:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        version_number:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        configuration_snapshot:
+          description: Full agent config at this version
+        calls_with_this_version:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        avg_sentiment:
+          type: number
+          format: double
+          nullable: true
+        success_rate:
+          type: number
+          format: double
+          nullable: true
+        is_active:
+          type: boolean
+          description: Currently deployed version
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        agent:
+          type: string
+          format: uuid
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - agent
+      - configuration_snapshot
+      - created_at
+      - id
+      - version_number
+    BlankEnum:
+      enum:
+      - ''
+    Call:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        lead_name:
+          type: string
+          readOnly: true
+        agent_name:
+          type: string
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        ai_analysis:
+          allOf:
+          - $ref: '#/components/schemas/AIAnalysis'
+          readOnly: true
+        recording:
+          allOf:
+          - $ref: '#/components/schemas/CallRecording'
+          readOnly: true
+        cost:
+          allOf:
+          - $ref: '#/components/schemas/CallCost'
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/Status7efEnum'
+        outcome:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/OutcomeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        duration_seconds:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        tokens_consumed:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        summary:
+          type: string
+        transcript:
+          type: string
+        transcript_url:
+          type: string
+          format: uri
+          maxLength: 500
+        recording_url:
+          type: string
+          format: uri
+          maxLength: 500
+        scheduled_at:
+          type: string
+          format: date-time
+          nullable: true
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        lead:
+          type: string
+          format: uuid
+        agent:
+          type: string
+          format: uuid
+        company:
+          type: string
+          format: uuid
+      required:
+      - agent
+      - agent_name
+      - ai_analysis
+      - company
+      - company_name
+      - cost
+      - created_at
+      - id
+      - lead
+      - lead_name
+      - recording
+      - updated_at
+    CallCost:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        voice_provider:
+          type: string
+          maxLength: 50
+        voice_minutes:
+          type: number
+          format: double
+        voice_cost_per_minute:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,4})?$
+        voice_total_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,4})?$
+        ai_provider:
+          type: string
+          maxLength: 50
+        ai_tokens_consumed:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        ai_cost_per_token:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,4}(?:\.\d{0,6})?$
+        ai_total_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,4})?$
+        phone_provider:
+          type: string
+          maxLength: 50
+        phone_cost:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,4})?$
+        total_cost_usd:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,4})?$
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        call:
+          type: string
+          format: uuid
+      required:
+      - ai_cost_per_token
+      - ai_total_cost
+      - call
+      - created_at
+      - id
+      - total_cost_usd
+      - voice_cost_per_minute
+      - voice_provider
+      - voice_total_cost
+    CallList:
+      type: object
+      description: Lightweight serializer for listing calls
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        lead:
+          type: string
+          format: uuid
+        lead_name:
+          type: string
+          readOnly: true
+        agent:
+          type: string
+          format: uuid
+        agent_name:
+          type: string
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/Status7efEnum'
+        outcome:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/OutcomeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        duration_seconds:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        tokens_consumed:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - agent
+      - agent_name
+      - created_at
+      - id
+      - lead
+      - lead_name
+    CallRecording:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        s3_bucket:
+          type: string
+          maxLength: 255
+        s3_key:
+          type: string
+          maxLength: 500
+        s3_url:
+          type: string
+          format: uri
+          description: Permanent S3 URL
+          maxLength: 500
+        signed_url:
+          type: string
+          format: uri
+          description: Temporary signed URL
+          maxLength: 1000
+        signed_url_expires_at:
+          type: string
+          format: date-time
+          nullable: true
+        file_size_bytes:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        duration_seconds:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        format:
+          type: string
+          description: mp3, wav, etc.
+          maxLength: 20
+        retain_until:
+          type: string
+          format: date-time
+          nullable: true
+          description: Auto-delete after this date
+        is_deleted:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        call:
+          type: string
+          format: uuid
+      required:
+      - call
+      - created_at
+      - id
+      - s3_url
+      - updated_at
+    CallTypeEnum:
+      enum:
+      - inbound
+      - outbound
+      type: string
+      description: |-
+        * `inbound` - Inbound
+        * `outbound` - Outbound
+    Campaign:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        campaign_name:
+          type: string
+          maxLength: 255
+        is_active:
+          type: boolean
+        sale_cycle:
+          $ref: '#/components/schemas/SaleCycleEnum'
+        call_type:
+          $ref: '#/components/schemas/CallTypeEnum'
+        phone_no:
+          type: string
+          description: Caller ID number
+          maxLength: 20
+        call_flow_url:
+          type: string
+          format: uri
+          maxLength: 500
+        test_call_url:
+          type: string
+          format: uri
+          maxLength: 500
+        agent_id:
+          type: string
+          description: External agent reference
+          maxLength: 255
+        created_by:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_by:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - call_type
+      - campaign_name
+      - created_at
+      - created_by
+      - phone_no
+      - sale_cycle
+      - updated_at
+      - updated_by
+      - uuid
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - slug
+    CompanyRegister:
+      type: object
+      properties:
+        company_name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - company_name
+      - email
+      - first_name
+      - last_name
+      - password
+    DataExport:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        requested_by_name:
+          type: string
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        export_type:
+          $ref: '#/components/schemas/ExportTypeEnum'
+        filters:
+          description: '{"campaign_id": "...", "date_range": [...]}'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DataExportStatusEnum'
+          readOnly: true
+        file_url:
+          type: string
+          format: uri
+          readOnly: true
+          description: S3 signed URL
+        file_size_bytes:
+          type: integer
+          readOnly: true
+          nullable: true
+        row_count:
+          type: integer
+          readOnly: true
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          description: Download link expires after 24hrs
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        company:
+          type: string
+          format: uuid
+        requested_by:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - company
+      - company_name
+      - completed_at
+      - created_at
+      - expires_at
+      - export_type
+      - file_size_bytes
+      - file_url
+      - filters
+      - id
+      - requested_by_name
+      - row_count
+      - status
+    DataExportStatusEnum:
+      enum:
+      - pending
+      - processing
+      - completed
+      - failed
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `processing` - Processing
+        * `completed` - Completed
+        * `failed` - Failed
+    DispositionEnum:
+      enum:
+      - not_interested
+      - hung_up
+      - completed
+      - no_answer
+      - callback_requested
+      - voicemail
+      - wrong_number
+      - dnc
+      type: string
+      description: |-
+        * `not_interested` - Not Interested
+        * `hung_up` - Hung Up
+        * `completed` - Completed
+        * `no_answer` - No Answer
+        * `callback_requested` - Callback Requested
+        * `voicemail` - Voicemail Left
+        * `wrong_number` - Wrong Number
+        * `dnc` - Do Not Call
+    Employee:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        company:
+          allOf:
+          - $ref: '#/components/schemas/Company'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - company
+      - created_at
+      - email
+      - first_name
+      - id
+      - last_name
+      - role
+    EmployeeRegister:
+      type: object
+      properties:
+        company_slug:
+          type: string
+          pattern: ^[-a-zA-Z0-9_]+$
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+      required:
+      - company_slug
+      - email
+      - first_name
+      - last_name
+      - password
+    ExportTypeEnum:
+      enum:
+      - leads_csv
+      - calls_csv
+      - transcripts_zip
+      - analytics_excel
+      - full_backup
+      type: string
+      description: |-
+        * `leads_csv` - Leads CSV
+        * `calls_csv` - Calls CSV
+        * `transcripts_zip` - Transcripts ZIP
+        * `analytics_excel` - Analytics Excel
+        * `full_backup` - Full Data Backup
+    Integration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        integration_type:
+          $ref: '#/components/schemas/IntegrationTypeEnum'
+        name:
+          type: string
+          description: Display name for this integration
+          maxLength: 255
+        credentials:
+          writeOnly: true
+          description: Encrypted API keys, tokens, etc.
+        settings:
+          description: Integration-specific settings
+        is_active:
+          type: boolean
+        last_sync_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        last_sync_status:
+          type: string
+          maxLength: 20
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company:
+          type: string
+          format: uuid
+      required:
+      - company
+      - company_name
+      - created_at
+      - credentials
+      - id
+      - integration_type
+      - last_sync_at
+      - name
+      - updated_at
+    IntegrationLog:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        integration_name:
+          type: string
+          readOnly: true
+        action:
+          $ref: '#/components/schemas/ActionEnum'
+        success:
+          type: boolean
+        records_processed:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        records_succeeded:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        records_failed:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        error_message:
+          type: string
+        details: {}
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        integration:
+          type: string
+          format: uuid
+      required:
+      - action
+      - created_at
+      - id
+      - integration
+      - integration_name
+    IntegrationTypeEnum:
+      enum:
+      - salesforce
+      - hubspot
+      - pipedrive
+      - zoho
+      - slack
+      - zapier
+      - custom_webhook
+      type: string
+      description: |-
+        * `salesforce` - Salesforce
+        * `hubspot` - HubSpot
+        * `pipedrive` - Pipedrive
+        * `zoho` - Zoho CRM
+        * `slack` - Slack
+        * `zapier` - Zapier
+        * `custom_webhook` - Custom Webhook
+    Lead:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        agent_name:
+          type: string
+          readOnly: true
+        campaign_name:
+          type: string
+          readOnly: true
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeadNote'
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone_e164:
+          type: string
+          description: 'E.164 format: +14155552671'
+          maxLength: 20
+        address_line1:
+          type: string
+          maxLength: 255
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 50
+        country:
+          type: string
+          description: ISO 2-letter code
+          maxLength: 2
+        postal_code:
+          type: string
+          maxLength: 20
+        timezone:
+          type: string
+          maxLength: 50
+        status:
+          $ref: '#/components/schemas/StatusF33Enum'
+        disposition:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/DispositionEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        attempts_count:
+          type: integer
+          readOnly: true
+        successful_contact_count:
+          type: integer
+          readOnly: true
+          description: Times actually spoke
+        is_verified:
+          type: boolean
+        verification_method:
+          type: string
+          description: company_verified, twilio_lookup
+          maxLength: 50
+        phone_carrier:
+          type: string
+          maxLength: 100
+        phone_type:
+          type: string
+          description: mobile, landline, voip
+          maxLength: 20
+        schedule_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_called_at:
+          type: string
+          format: date-time
+          nullable: true
+        next_retry_at:
+          type: string
+          format: date-time
+          nullable: true
+        do_not_call_before:
+          type: string
+          format: time
+          nullable: true
+          description: e.g., 09:00
+        do_not_call_after:
+          type: string
+          format: time
+          nullable: true
+          description: e.g., 20:00
+        currently_in_call:
+          type: boolean
+        call_lock_acquired_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        custom_fields:
+          description: '{"company": "Acme Corp", "title": "VP Sales", "linkedin":
+            "https://..."}'
+        tags:
+          description: '["high-value", "warm-lead"]'
+        lead_score:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          description: 0-100 score
+        source:
+          type: string
+          description: csv_upload, api, crm_sync
+          maxLength: 100
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company:
+          type: string
+          format: uuid
+        agent:
+          type: string
+          format: uuid
+        campaign:
+          type: string
+          format: uuid
+        import_batch:
+          type: string
+          format: uuid
+          nullable: true
+        deleted_by:
+          type: string
+          format: uuid
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - agent
+      - agent_name
+      - attempts_count
+      - call_lock_acquired_at
+      - campaign
+      - campaign_name
+      - company
+      - created_at
+      - first_name
+      - id
+      - notes
+      - phone_e164
+      - successful_contact_count
+      - updated_at
+    LeadImportBatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        imported_by_name:
+          type: string
+          readOnly: true
+        campaign_name:
+          type: string
+          readOnly: true
+        filename:
+          type: string
+          maxLength: 500
+        file_url:
+          type: string
+          format: uri
+          description: S3 location
+          maxLength: 500
+        status:
+          $ref: '#/components/schemas/LeadImportBatchStatusEnum'
+        total_rows:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        successful_imports:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        failed_imports:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        error_log:
+          description: '[{"row": 5, "error": "Invalid phone"}]'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        company:
+          type: string
+          format: uuid
+        campaign:
+          type: string
+          format: uuid
+        agent:
+          type: string
+          format: uuid
+        imported_by:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - agent
+      - campaign
+      - campaign_name
+      - company
+      - completed_at
+      - created_at
+      - file_url
+      - filename
+      - id
+      - imported_by_name
+    LeadImportBatchStatusEnum:
+      enum:
+      - pending
+      - processing
+      - completed
+      - failed
+      - partial
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `processing` - Processing
+        * `completed` - Completed
+        * `failed` - Failed
+        * `partial` - Partial Success
+    LeadList:
+      type: object
+      description: Lightweight serializer for listing leads
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        phone_e164:
+          type: string
+          description: 'E.164 format: +14155552671'
+          maxLength: 20
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        status:
+          $ref: '#/components/schemas/StatusF33Enum'
+        disposition:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/DispositionEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        agent:
+          type: string
+          format: uuid
+        agent_name:
+          type: string
+          readOnly: true
+        campaign:
+          type: string
+          format: uuid
+        campaign_name:
+          type: string
+          readOnly: true
+        attempts_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - agent
+      - agent_name
+      - campaign
+      - campaign_name
+      - created_at
+      - first_name
+      - id
+      - phone_e164
+    LeadNote:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
+        note:
+          type: string
+        is_pinned:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        lead:
+          type: string
+          format: uuid
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - created_at
+      - created_by_name
+      - id
+      - lead
+      - note
+      - updated_at
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - password
+    NullEnum:
+      enum:
+      - null
+    OutcomeEnum:
+      enum:
+      - answered
+      - no_answer
+      - busy
+      - failed
+      - voicemail
+      type: string
+      description: |-
+        * `answered` - Answered
+        * `no_answer` - No Answer
+        * `busy` - Busy
+        * `failed` - Failed
+        * `voicemail` - Voicemail
+    PatchedAgent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        voice_config_name:
+          type: string
+          readOnly: true
+        campaign_name:
+          type: string
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/StatusCbfEnum'
+        prompt:
+          type: string
+          description: System prompt / instructions for the AI
+        welcome_message:
+          type: string
+          description: First thing agent says
+        fallback_message:
+          type: string
+          description: When agent doesn't understand
+        goodbye_message:
+          type: string
+        voice_id:
+          type: string
+          format: uuid
+          nullable: true
+        max_attempts:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          description: Max call attempts per lead
+        retry_delay_minutes:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        max_call_duration_minutes:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        interrupt_threshold:
+          type: number
+          format: double
+          description: How easily user can interrupt (0-1)
+        model_name:
+          type: string
+          maxLength: 100
+        temperature:
+          type: number
+          format: double
+        max_tokens:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        knowledge_base_text:
+          type: string
+          description: Additional context for agent
+        knowledge_base_urls:
+          description: '["https://..."]'
+        enable_human_handoff:
+          type: boolean
+        handoff_phone_number:
+          type: string
+          maxLength: 20
+        handoff_triggers:
+          description: '["angry", "request manager"]'
+        total_calls:
+          type: integer
+          readOnly: true
+        successful_calls:
+          type: integer
+          readOnly: true
+        avg_rating:
+          type: number
+          format: double
+          readOnly: true
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company:
+          type: string
+          format: uuid
+        campaign:
+          type: string
+          format: uuid
+        voice_config:
+          type: string
+          format: uuid
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+        updated_by:
+          type: string
+          format: uuid
+          nullable: true
+    PatchedCall:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        lead_name:
+          type: string
+          readOnly: true
+        agent_name:
+          type: string
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        ai_analysis:
+          allOf:
+          - $ref: '#/components/schemas/AIAnalysis'
+          readOnly: true
+        recording:
+          allOf:
+          - $ref: '#/components/schemas/CallRecording'
+          readOnly: true
+        cost:
+          allOf:
+          - $ref: '#/components/schemas/CallCost'
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/Status7efEnum'
+        outcome:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/OutcomeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        duration_seconds:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        tokens_consumed:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        summary:
+          type: string
+        transcript:
+          type: string
+        transcript_url:
+          type: string
+          format: uri
+          maxLength: 500
+        recording_url:
+          type: string
+          format: uri
+          maxLength: 500
+        scheduled_at:
+          type: string
+          format: date-time
+          nullable: true
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        lead:
+          type: string
+          format: uuid
+        agent:
+          type: string
+          format: uuid
+        company:
+          type: string
+          format: uuid
+    PatchedCampaign:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        campaign_name:
+          type: string
+          maxLength: 255
+        is_active:
+          type: boolean
+        sale_cycle:
+          $ref: '#/components/schemas/SaleCycleEnum'
+        call_type:
+          $ref: '#/components/schemas/CallTypeEnum'
+        phone_no:
+          type: string
+          description: Caller ID number
+          maxLength: 20
+        call_flow_url:
+          type: string
+          format: uri
+          maxLength: 500
+        test_call_url:
+          type: string
+          format: uri
+          maxLength: 500
+        agent_id:
+          type: string
+          description: External agent reference
+          maxLength: 255
+        created_by:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_by:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedDataExport:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        requested_by_name:
+          type: string
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        export_type:
+          $ref: '#/components/schemas/ExportTypeEnum'
+        filters:
+          description: '{"campaign_id": "...", "date_range": [...]}'
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DataExportStatusEnum'
+          readOnly: true
+        file_url:
+          type: string
+          format: uri
+          readOnly: true
+          description: S3 signed URL
+        file_size_bytes:
+          type: integer
+          readOnly: true
+          nullable: true
+        row_count:
+          type: integer
+          readOnly: true
+          nullable: true
+        expires_at:
+          type: string
+          format: date-time
+          description: Download link expires after 24hrs
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        company:
+          type: string
+          format: uuid
+        requested_by:
+          type: string
+          format: uuid
+          nullable: true
+    PatchedIntegration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        integration_type:
+          $ref: '#/components/schemas/IntegrationTypeEnum'
+        name:
+          type: string
+          description: Display name for this integration
+          maxLength: 255
+        credentials:
+          writeOnly: true
+          description: Encrypted API keys, tokens, etc.
+        settings:
+          description: Integration-specific settings
+        is_active:
+          type: boolean
+        last_sync_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        last_sync_status:
+          type: string
+          maxLength: 20
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company:
+          type: string
+          format: uuid
+    PatchedLead:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        agent_name:
+          type: string
+          readOnly: true
+        campaign_name:
+          type: string
+          readOnly: true
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeadNote'
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        phone_e164:
+          type: string
+          description: 'E.164 format: +14155552671'
+          maxLength: 20
+        address_line1:
+          type: string
+          maxLength: 255
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 50
+        country:
+          type: string
+          description: ISO 2-letter code
+          maxLength: 2
+        postal_code:
+          type: string
+          maxLength: 20
+        timezone:
+          type: string
+          maxLength: 50
+        status:
+          $ref: '#/components/schemas/StatusF33Enum'
+        disposition:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/DispositionEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        attempts_count:
+          type: integer
+          readOnly: true
+        successful_contact_count:
+          type: integer
+          readOnly: true
+          description: Times actually spoke
+        is_verified:
+          type: boolean
+        verification_method:
+          type: string
+          description: company_verified, twilio_lookup
+          maxLength: 50
+        phone_carrier:
+          type: string
+          maxLength: 100
+        phone_type:
+          type: string
+          description: mobile, landline, voip
+          maxLength: 20
+        schedule_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_called_at:
+          type: string
+          format: date-time
+          nullable: true
+        next_retry_at:
+          type: string
+          format: date-time
+          nullable: true
+        do_not_call_before:
+          type: string
+          format: time
+          nullable: true
+          description: e.g., 09:00
+        do_not_call_after:
+          type: string
+          format: time
+          nullable: true
+          description: e.g., 20:00
+        currently_in_call:
+          type: boolean
+        call_lock_acquired_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        custom_fields:
+          description: '{"company": "Acme Corp", "title": "VP Sales", "linkedin":
+            "https://..."}'
+        tags:
+          description: '["high-value", "warm-lead"]'
+        lead_score:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          description: 0-100 score
+        source:
+          type: string
+          description: csv_upload, api, crm_sync
+          maxLength: 100
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company:
+          type: string
+          format: uuid
+        agent:
+          type: string
+          format: uuid
+        campaign:
+          type: string
+          format: uuid
+        import_batch:
+          type: string
+          format: uuid
+          nullable: true
+        deleted_by:
+          type: string
+          format: uuid
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+    PatchedLeadImportBatch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        imported_by_name:
+          type: string
+          readOnly: true
+        campaign_name:
+          type: string
+          readOnly: true
+        filename:
+          type: string
+          maxLength: 500
+        file_url:
+          type: string
+          format: uri
+          description: S3 location
+          maxLength: 500
+        status:
+          $ref: '#/components/schemas/LeadImportBatchStatusEnum'
+        total_rows:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        successful_imports:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        failed_imports:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        error_log:
+          description: '[{"row": 5, "error": "Invalid phone"}]'
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        company:
+          type: string
+          format: uuid
+        campaign:
+          type: string
+          format: uuid
+        agent:
+          type: string
+          format: uuid
+        imported_by:
+          type: string
+          format: uuid
+          nullable: true
+    PatchedLeadNote:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
+        note:
+          type: string
+        is_pinned:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        lead:
+          type: string
+          format: uuid
+        created_by:
+          type: string
+          format: uuid
+          nullable: true
+    PatchedVoiceConfiguration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          description: e.g., 'Professional Male', 'Friendly Female'
+          maxLength: 255
+        provider:
+          type: string
+          description: elevenlabs, google, azure
+          maxLength: 50
+        voice_id:
+          type: string
+          description: Provider's voice ID
+          maxLength: 255
+        language_code:
+          type: string
+          maxLength: 10
+        speed:
+          type: number
+          format: double
+          description: 0.5 to 2.0
+        pitch:
+          type: number
+          format: double
+          description: 0.5 to 2.0
+        stability:
+          type: number
+          format: double
+          description: ElevenLabs specific
+        similarity_boost:
+          type: number
+          format: double
+          description: ElevenLabs specific
+        sample_audio_url:
+          type: string
+          format: uri
+          maxLength: 500
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company:
+          type: string
+          format: uuid
+    PatchedWebhookConfig:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          maxLength: 500
+        is_active:
+          type: boolean
+        event_call_started:
+          type: boolean
+        event_call_completed:
+          type: boolean
+        event_call_analysed:
+          type: boolean
+        event_call_failed:
+          type: boolean
+        secret_key:
+          type: string
+          description: For HMAC signatures
+          maxLength: 255
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company:
+          type: string
+          format: uuid
+    RoleEnum:
+      enum:
+      - admin
+      - employee
+      type: string
+      description: |-
+        * `admin` - Admin
+        * `employee` - Employee
+    SaleCycleEnum:
+      enum:
+      - prospecting
+      - qualification
+      - proposal
+      - negotiation
+      - closed_won
+      - closed_lost
+      type: string
+      description: |-
+        * `prospecting` - Prospecting
+        * `qualification` - Qualification
+        * `proposal` - Proposal
+        * `negotiation` - Negotiation
+        * `closed_won` - Closed Won
+        * `closed_lost` - Closed Lost
+    SentimentEnum:
+      enum:
+      - positive
+      - neutral
+      - negative
+      type: string
+      description: |-
+        * `positive` - Positive
+        * `neutral` - Neutral
+        * `negative` - Negative
+    Status7efEnum:
+      enum:
+      - scheduled
+      - in_progress
+      - completed
+      - failed
+      type: string
+      description: |-
+        * `scheduled` - Scheduled
+        * `in_progress` - In Progress
+        * `completed` - Completed
+        * `failed` - Failed
+    StatusCbfEnum:
+      enum:
+      - active
+      - inactive
+      - testing
+      type: string
+      description: |-
+        * `active` - Active
+        * `inactive` - Inactive
+        * `testing` - Testing
+    StatusCf5Enum:
+      enum:
+      - pending
+      - success
+      - failed
+      - retrying
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `success` - Success
+        * `failed` - Failed
+        * `retrying` - Retrying
+    StatusF33Enum:
+      enum:
+      - new
+      - scheduled
+      - in_progress
+      - done
+      - stopped
+      type: string
+      description: |-
+        * `new` - New
+        * `scheduled` - Scheduled
+        * `in_progress` - In Progress
+        * `done` - Done
+        * `stopped` - Stopped
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    VoiceConfiguration:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          description: e.g., 'Professional Male', 'Friendly Female'
+          maxLength: 255
+        provider:
+          type: string
+          description: elevenlabs, google, azure
+          maxLength: 50
+        voice_id:
+          type: string
+          description: Provider's voice ID
+          maxLength: 255
+        language_code:
+          type: string
+          maxLength: 10
+        speed:
+          type: number
+          format: double
+          description: 0.5 to 2.0
+        pitch:
+          type: number
+          format: double
+          description: 0.5 to 2.0
+        stability:
+          type: number
+          format: double
+          description: ElevenLabs specific
+        similarity_boost:
+          type: number
+          format: double
+          description: ElevenLabs specific
+        sample_audio_url:
+          type: string
+          format: uri
+          maxLength: 500
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company:
+          type: string
+          format: uuid
+      required:
+      - company
+      - created_at
+      - id
+      - name
+      - provider
+      - voice_id
+    WebhookConfig:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        company_name:
+          type: string
+          readOnly: true
+        url:
+          type: string
+          format: uri
+          maxLength: 500
+        is_active:
+          type: boolean
+        event_call_started:
+          type: boolean
+        event_call_completed:
+          type: boolean
+        event_call_analysed:
+          type: boolean
+        event_call_failed:
+          type: boolean
+        secret_key:
+          type: string
+          description: For HMAC signatures
+          maxLength: 255
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        company:
+          type: string
+          format: uuid
+      required:
+      - company
+      - company_name
+      - created_at
+      - id
+      - updated_at
+      - url
+    WebhookDelivery:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        event_type:
+          type: string
+          description: call.started, call.completed, etc.
+          maxLength: 50
+        payload: {}
+        status:
+          $ref: '#/components/schemas/StatusCf5Enum'
+        attempt_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        max_attempts:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        response_status_code:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        response_body:
+          type: string
+        error_message:
+          type: string
+        next_retry_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        delivered_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        webhook_config:
+          type: string
+          format: uuid
+        call:
+          type: string
+          format: uuid
+      required:
+      - call
+      - created_at
+      - delivered_at
+      - event_type
+      - id
+      - payload
+      - webhook_config
+    WebhookDeliveryList:
+      type: object
+      description: Lightweight serializer for listing webhook deliveries
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        event_type:
+          type: string
+          description: call.started, call.completed, etc.
+          maxLength: 50
+        status:
+          $ref: '#/components/schemas/StatusCf5Enum'
+        attempt_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        response_status_code:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - created_at
+      - event_type
+      - id
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Authentication
+  description: User authentication and token management
+- name: Agents
+  description: AI voice agent configuration and management
+- name: Leads
+  description: Contact management and scheduling
+- name: Calls
+  description: Call records, AI analysis, and recordings
+- name: Campaigns
+  description: Campaign management and statistics
+- name: Webhooks
+  description: Webhook configuration and delivery logs
+- name: Integrations
+  description: Third-party CRM integrations
+- name: Exports
+  description: Data export jobs
